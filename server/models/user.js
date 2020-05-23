@@ -39,3 +39,21 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+userSchema.virtual("password").set(function (password) {
+  this._password = password;
+  this.salt = uuidv1();
+  this.hashed_password = this.encrypyPassword(password);
+});
+
+userSchema.methods = {
+  encrypyPassword: function (password) {
+    if (!password) return;
+    else {
+      return crypto
+        .createHmac("sha1", this.salt)
+        .update(password)
+        .digest("hex");
+    }
+  },
+};
